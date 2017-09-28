@@ -463,11 +463,11 @@ namespace Microsoft.AspNetCore.SignalR
                     await SendMessageAsync(connection, new StreamItemMessage(invocationId, enumerator.Current));
                 }
 
-                await SendMessageAsync(connection, CompletionMessage.Empty(invocationId));
+                await SendMessageAsync(connection, new StreamCompletionMessage(invocationId, error: null));
             }
             catch (Exception ex)
             {
-                await SendMessageAsync(connection, CompletionMessage.WithError(invocationId, ex.Message));
+                await SendMessageAsync(connection, new StreamCompletionMessage(invocationId, error: ex.Message));
             }
             finally
             {
