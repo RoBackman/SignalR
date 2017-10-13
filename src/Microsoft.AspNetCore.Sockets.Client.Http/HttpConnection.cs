@@ -349,7 +349,14 @@ namespace Microsoft.AspNetCore.Sockets.Client
 
                             foreach (var callBackObject in callBackCopies)
                             {
-                                await callBackObject.InvokeAsync(buffer);
+                                try
+                                {
+                                    await callBackObject.InvokeAsync(buffer);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.ExceptionThrownFromHandler(_connectionId, "Test", ex);
+                                }
                             }
                         });
                     }
@@ -457,7 +464,7 @@ namespace Microsoft.AspNetCore.Sockets.Client
 
         public IDisposable OnReceived(Func<byte[], Task> callback)
         {
-            return OnReceived(callback);
+            return OnReceived((data, _) => { return callback(data); }, null);
         }
 
         public class ReceiveCallBack
