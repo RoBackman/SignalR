@@ -339,7 +339,7 @@ namespace Microsoft.AspNetCore.Sockets.Client
                         {
                             _logger.RaiseReceiveEvent(_connectionId);
 
-                            //Copying the callbacks to avoid concurrency issues
+                            // Copying the callbacks to avoid concurrency issues
                             ReceiveCallBack[] callBackCopies;
                             lock (_callBacks)
                             {

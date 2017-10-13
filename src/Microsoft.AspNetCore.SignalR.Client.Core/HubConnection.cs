@@ -122,16 +122,15 @@ namespace Microsoft.AspNetCore.SignalR.Client
         public IDisposable On(string methodName, Type[] parameterTypes, Func<object[], object, Task> handler, object state)
         {
             var invocationHandler = new InvocationHandler(parameterTypes, handler, state);
-            if (!_handlers.TryGetValue(methodName, out var callBackList))
-            {
-                callBackList = new List<InvocationHandler> { invocationHandler };
-            }
-
-            var invocationList = _handlers.AddOrUpdate(methodName, callBackList, (_, invocations) =>
-            {
-                invocations.Add(invocationHandler);
-                return invocations;
-            });
+            var invocationList = _handlers.AddOrUpdate(methodName, 
+                _ => 
+                {
+                    return new List<InvocationHandler> { invocationHandler };
+                }, 
+                (_, invocations) => {
+                    invocations.Add(invocationHandler);
+                    return invocations;
+                });
 
             return new Subscription(invocationHandler, invocationList);
         }
@@ -426,7 +425,7 @@ namespace Microsoft.AspNetCore.SignalR.Client
 
             public Type GetReturnType(string invocationId)
             {
-                if (!_connection._pendingCalls.TryGetValue(invocationId, out InvocationRequest irq))
+                if (!_connection._pendingCalls.TryGetValue(invocationId, out var irq))
                 {
                     _connection._logger.ReceivedUnexpectedResponse(invocationId);
                     return null;
