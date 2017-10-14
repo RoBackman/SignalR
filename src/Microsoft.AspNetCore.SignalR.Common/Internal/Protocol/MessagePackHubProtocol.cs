@@ -69,6 +69,8 @@ namespace Microsoft.AspNetCore.SignalR.Internal.Protocol
                     return CreateCompletionMessage(unpacker, binder);
                 case StreamCompletionMessageType:
                     return CreateStreamCompletionMessage(unpacker, arraySize, binder);
+                case CancelInvocationMessageType:
+                    return CreateCancelInvocationMessage(unpacker);
                 default:
                     throw new FormatException($"Invalid message type: {messageType}.");
             }
