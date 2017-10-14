@@ -435,18 +435,21 @@ namespace Microsoft.AspNetCore.SignalR.Client
 
             public Type[] GetParameterTypes(string methodName)
             {
-                if (!_connection._handlers.TryGetValue(methodName, out List<InvocationHandler> handlers))
+                if (!_connection._handlers.TryGetValue(methodName, out var handlers))
                 {
                     _connection._logger.MissingHandler(methodName);
                     return Type.EmptyTypes;
                 }
 
                 // We use the parameter types of the first handler
-                if (handlers.Count > 0)
+                lock (handlers)
                 {
-                    return handlers[0].ParameterTypes;
+                    if (handlers.Count > 0)
+                    {
+                        return handlers[0].ParameterTypes;
+                    }
+                    throw new InvalidOperationException($"There are no callbacks registered for the method '{methodName}'");
                 }
-                throw new InvalidOperationException($"There are no callbacks registered for the method '{methodName}'");
             }
         }
 
